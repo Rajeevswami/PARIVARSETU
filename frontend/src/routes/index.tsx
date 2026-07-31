@@ -1,4 +1,4 @@
-import { Navigate, Route, Routes } from "react-router-dom";
+import {Route, Routes } from "react-router-dom";
 
 import { MainLayout } from "@/layouts/MainLayout";
 import { AcceptInvitationPage } from "@/pages/AcceptInvitationPage";
