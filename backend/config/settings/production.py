@@ -42,3 +42,12 @@ CACHES = {
 
 # Temporary: disable DRF throttling
 REST_FRAMEWORK["DEFAULT_THROTTLE_CLASSES"] = []
+
+
+
+
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+    }
+}
