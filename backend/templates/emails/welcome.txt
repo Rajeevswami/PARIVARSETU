@@ -1,0 +1,5 @@
+Hi {{ first_name }},
+
+Welcome to ParivarSetu — your family's shared space for financial transparency.
+
+Log in: {{ login_link }}

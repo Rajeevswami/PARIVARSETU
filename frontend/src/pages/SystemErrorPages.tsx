@@ -1,0 +1,4 @@
+import { Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+export function NotFoundPage(){return <main className="grid min-h-screen place-items-center p-6 text-center"><div><p className="text-6xl font-bold">404</p><h1 className="mt-4 text-xl font-semibold">Page not found</h1><p className="mt-2 text-muted-foreground">The page you requested is unavailable.</p><Button className="mt-6" asChild><Link to="/">Go to dashboard</Link></Button></div></main>}
+export function ForbiddenPage(){return <main className="grid min-h-screen place-items-center p-6 text-center"><div><p className="text-6xl font-bold">403</p><h1 className="mt-4 text-xl font-semibold">Access denied</h1><p className="mt-2 text-muted-foreground">You do not have permission to view this page.</p></div></main>}

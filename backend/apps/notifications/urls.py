@@ -1,0 +1,3 @@
+from rest_framework.routers import DefaultRouter
+from .views import AnnouncementViewSet, LoginHistoryViewSet, NotificationViewSet, PreferenceViewSet, SecurityViewSet, TimelineViewSet
+router=DefaultRouter();router.register("preferences",PreferenceViewSet,basename="notification-preference");router.register("announcements",AnnouncementViewSet,basename="announcement");router.register("timeline",TimelineViewSet,basename="timeline");router.register("security-events",SecurityViewSet,basename="security-event");router.register("login-history",LoginHistoryViewSet,basename="login-history");router.register("",NotificationViewSet,basename="notification");urlpatterns=router.urls

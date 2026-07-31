@@ -1,0 +1,5 @@
+{{ invited_by_name }} has invited you to join {{ family_name }} on ParivarSetu.
+
+Accept your invitation: {{ invite_link }}
+
+This link expires in 7 days. If you weren't expecting this, you can ignore it.

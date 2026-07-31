@@ -1,0 +1,6 @@
+{% extends "emails/base.html" %}
+{% block content %}
+  <p>Hi {{ first_name }},</p>
+  <p>Welcome to ParivarSetu — your family's shared space for financial transparency.</p>
+  <p><a href="{{ login_link }}" class="button">Log In</a></p>
+{% endblock %}

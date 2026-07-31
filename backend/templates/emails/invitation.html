@@ -1,0 +1,6 @@
+{% extends "emails/base.html" %}
+{% block content %}
+  <p>{{ invited_by_name }} has invited you to join <strong>{{ family_name }}</strong> on ParivarSetu.</p>
+  <p><a href="{{ invite_link }}" class="button">Accept Invitation</a></p>
+  <p>This link expires in 7 days. If you weren't expecting this, you can ignore it.</p>
+{% endblock %}

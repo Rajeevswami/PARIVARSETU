@@ -1,0 +1,31 @@
+# Python
+__pycache__/
+*.pyc
+venv/
+.venv/
+*.egg-info/
+staticfiles/
+backend/media/*
+!backend/media/.gitkeep
+backend/logs/*.log
+!backend/logs/.gitkeep
+
+# Env
+.env
+*.env.local
+
+# Node
+node_modules/
+dist/
+.vite/
+coverage/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+
+# Logs
+*.log

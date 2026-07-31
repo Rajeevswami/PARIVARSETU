@@ -1,0 +1,66 @@
+services:
+  db:
+    image: postgres:17-alpine
+    restart: always
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+
+  redis:
+    image: redis:7-alpine
+    restart: always
+
+  backend:
+    build:
+      context: ./backend
+      args:
+        ENV: production
+    env_file: ./backend/.env
+    restart: always
+    depends_on:
+      - db
+      - redis
+
+  celery_worker:
+    build:
+      context: ./backend
+      args:
+        ENV: production
+    env_file: ./backend/.env
+    command: celery -A config worker -l info
+    restart: always
+    depends_on:
+      - backend
+
+  celery_beat:
+    build:
+      context: ./backend
+      args:
+        ENV: production
+    env_file: ./backend/.env
+    command: celery -A config beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler
+    restart: always
+    depends_on:
+      - backend
+
+  frontend:
+    build: ./frontend
+    restart: always
+    depends_on:
+      - backend
+
+  nginx:
+    build: ./nginx
+    restart: always
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+      - frontend
+
+volumes:
+  pgdata:

@@ -1,0 +1,3 @@
+import { useQuery } from "@tanstack/react-query";
+import { api } from "@/api/axios";
+export function AnalyticsPage() { const {data,isLoading}=useQuery({queryKey:["analytics"],queryFn:()=>api.get("/dashboard/analytics/").then(r=>r.data.data)}); if(isLoading)return <div className="p-8">Loading analytics…</div>; return <div className="mx-auto max-w-5xl space-y-6 p-6"><h1 className="text-2xl font-semibold">Analytics</h1>{Object.entries(data ?? {}).map(([key,value])=><section key={key} className="rounded-lg border p-4"><h2 className="mb-3 capitalize">{key.replaceAll("_"," ")}</h2><pre className="overflow-auto text-xs">{JSON.stringify(value,null,2)}</pre></section>)}</div> }

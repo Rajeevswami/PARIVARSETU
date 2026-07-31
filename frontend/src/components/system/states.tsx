@@ -1,0 +1,6 @@
+import { AlertCircle, Inbox, LoaderCircle } from "lucide-react";
+import { type ReactNode } from "react";
+import { Button } from "@/components/ui/button";
+export function PageLoader(){return <div className="flex min-h-[16rem] items-center justify-center text-muted-foreground"><LoaderCircle className="mr-2 h-5 w-5 animate-spin"/>Loading…</div>}
+export function EmptyState({title="Nothing here yet",description,action}: {title?:string;description?:string;action?:ReactNode}){return <div className="flex min-h-48 flex-col items-center justify-center rounded-lg border border-dashed p-8 text-center"><Inbox className="mb-3 h-8 w-8 text-muted-foreground"/><h2 className="font-medium">{title}</h2>{description&&<p className="mt-1 text-sm text-muted-foreground">{description}</p>}{action&&<div className="mt-4">{action}</div>}</div>}
+export function ErrorState({message="Something went wrong",retry}: {message?:string;retry?:()=>void}){return <div role="alert" className="flex min-h-48 flex-col items-center justify-center rounded-lg border border-destructive/30 p-8 text-center"><AlertCircle className="mb-3 h-8 w-8 text-destructive"/><p>{message}</p>{retry&&<Button className="mt-4" variant="outline" onClick={retry}>Try again</Button>}</div>}
