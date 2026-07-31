@@ -28,3 +28,17 @@ if SENTRY_DSN:
         traces_sample_rate=0.1,
         send_default_pii=False,
     )
+
+
+
+
+# Temporary cache for production (until Redis is configured)
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        "LOCATION": "parivarsetu-temp-cache",
+    }
+}
+
+# Temporary: disable DRF throttling
+REST_FRAMEWORK["DEFAULT_THROTTLE_CLASSES"] = []
