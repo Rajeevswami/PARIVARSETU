@@ -6,7 +6,14 @@ from .base import INSTALLED_APPS, MIDDLEWARE
 DEBUG = True
 
 INSTALLED_APPS += ["debug_toolbar"]
-MIDDLEWARE = ["debug_toolbar.middleware.DebugToolbarMiddleware"] + MIDDLEWARE
+MIDDLEWARE = MIDDLEWARE.copy()
+
+gzip_index = MIDDLEWARE.index("django.middleware.gzip.GZipMiddleware")
+
+MIDDLEWARE.insert(
+    gzip_index + 1,
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
+)
 
 INTERNAL_IPS = ["127.0.0.1"]
 

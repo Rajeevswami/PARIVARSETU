@@ -5,6 +5,7 @@ Environment-specific overrides live in development.py / production.py.
 
 from datetime import timedelta
 from pathlib import Path
+import dj_database_url
 
 from decouple import Csv, config
 
@@ -104,16 +105,18 @@ TEMPLATES = [
 # Database (Postgres — configured per environment via DATABASE_URL parts)
 # ---------------------------------------------------------------------------
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": config("DB_NAME", default="parivarsetu"),
-        "USER": config("DB_USER", default="parivarsetu"),
-        "PASSWORD": config("DB_PASSWORD", default=""),
-        "HOST": config("DB_HOST", default="localhost"),
-        "PORT": config("DB_PORT", default="5432"),
-        "CONN_MAX_AGE": 60,
-        "CONN_HEALTH_CHECKS": True,
-    }
+    "default": dj_database_url.config(
+        default=(
+            f"postgresql://"
+            f"{config('DB_USER', default='parivarsetu')}:"
+            f"{config('DB_PASSWORD', default='')}@"
+            f"{config('DB_HOST', default='localhost')}:"
+            f"{config('DB_PORT', default='5432')}/"
+            f"{config('DB_NAME', default='parivarsetu')}"
+        ),
+        conn_max_age=60,
+        conn_health_checks=True,
+    )
 }
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
