@@ -96,6 +96,31 @@ def test_free_plan_cannot_use_the_copilot():
         answer(user=user, family_id=family.id, text="hello", transport=ScriptedTransport([]))
 
 
+@override_settings(WHATSAPP_VERIFY_TOKEN="verify-me")
+def test_whatsapp_verification_returns_the_raw_challenge():
+    response = APIClient().get(
+        reverse("assistant:whatsapp"),
+        {
+            "hub.mode": "subscribe",
+            "hub.verify_token": "verify-me",
+            "hub.challenge": "1158201444",
+        },
+    )
+    assert response.status_code == 200
+    assert response["Content-Type"].startswith("text/plain")
+    assert response.content == b"1158201444"
+    assert b"success" not in response.content
+
+
+@override_settings(WHATSAPP_VERIFY_TOKEN="")
+def test_whatsapp_verification_rejects_an_empty_configured_token():
+    response = APIClient().get(
+        reverse("assistant:whatsapp"),
+        {"hub.mode": "subscribe", "hub.verify_token": "", "hub.challenge": "1158201444"},
+    )
+    assert response.status_code == 403
+
+
 @override_settings(WHATSAPP_APP_SECRET="wa_secret", TELEGRAM_WEBHOOK_SECRET="tg_secret")
 def test_channel_expense_command():
     assert parse_expense_command("kharcha chai 50")["title"] == "chai"

@@ -31,4 +31,4 @@ After that, `remember()` writes both stores, and `search()` uses the `<=>` opera
 
 Celery beat runs `apps.assistant.tasks.send_weekly_family_summaries` every seven days. The task uses the deterministic summary, not a live Claude call. Production compose uses the settings beat schedule.
 
-Telegram and WhatsApp webhooks reject requests when their secrets are empty. A linked chat can record `expense title 40` or `kharcha title 40` through the existing expense service.
+Telegram and WhatsApp webhooks reject requests when their secrets are empty. WhatsApp verification is a GET with `hub.mode=subscribe`. A matching `hub.verify_token` returns the raw `hub.challenge` as `text/plain` with status 200. Any other case is 403. The body is not the JSON envelope. A linked chat can record `expense title 40` or `kharcha title 40` through the existing expense service.

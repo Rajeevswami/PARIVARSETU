@@ -60,6 +60,12 @@ def is_file_operation(path: str, view: Any | None = None) -> bool:
     return bool(FILE_PATH_RE.search(path or ""))
 
 
+def is_raw_text_operation(path: str, method: str = "") -> bool:
+    """WhatsApp verification must echo hub.challenge as text/plain, not JSON."""
+
+    return method.upper() == "GET" and (path or "").rstrip("/").endswith("/assistant/whatsapp")
+
+
 def is_raw_jwt_operation(path: str, view: Any | None = None) -> bool:
     if view is not None and view.__class__.__module__.startswith("rest_framework_simplejwt"):
         return True
@@ -160,6 +166,13 @@ class FamilyNexusAutoSchema(AutoSchema):
         return FreeformSerializer
 
     def _get_response_bodies(self, direction: str = "response"):
+        if is_raw_text_operation(self.path, self.method):
+            return {
+                "200": {
+                    "description": "Meta webhook verification. Body is the raw hub.challenge.",
+                    "content": {"text/plain": {"schema": {"type": "string"}}},
+                }
+            }
         if is_file_operation(self.path, self.view):
             binary = build_basic_type(OpenApiTypes.BINARY)
             return {
@@ -207,7 +220,11 @@ def postprocess_schema(result, generator, request, public):  # noqa: ARG001
             if method not in {"get", "post", "put", "patch", "delete"}:
                 continue
             responses = operation.setdefault("responses", {})
-            skip_wrap = is_raw_jwt_operation(path) or is_file_operation(path)
+            skip_wrap = (
+                is_raw_jwt_operation(path)
+                or is_file_operation(path)
+                or is_raw_text_operation(path, method)
+            )
             if not skip_wrap:
                 for code, response in responses.items():
                     if not str(code).startswith("2"):

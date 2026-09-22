@@ -1,3 +1,6 @@
+import hmac
+
+from django.http import HttpResponse
 from rest_framework import serializers
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.views import APIView
@@ -66,9 +69,14 @@ class WhatsAppWebhookView(APIView):
     def get(self, request):
         from django.conf import settings
 
-        if request.query_params.get("hub.verify_token") != settings.WHATSAPP_VERIFY_TOKEN:
+        configured = settings.WHATSAPP_VERIFY_TOKEN
+        supplied = request.query_params.get("hub.verify_token") or ""
+        mode = request.query_params.get("hub.mode")
+        challenge = request.query_params.get("hub.challenge")
+        token_matches = bool(configured) and hmac.compare_digest(supplied, configured)
+        if mode != "subscribe" or not token_matches or challenge is None:
             return error_response("Invalid verify token.", status_code=403)
-        return success_response(data={"challenge": request.query_params.get("hub.challenge", "")})
+        return HttpResponse(challenge, content_type="text/plain", status=200)
 
     def post(self, request):
         signature = request.headers.get("X-Hub-Signature-256", "")
