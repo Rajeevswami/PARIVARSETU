@@ -1,7 +1,8 @@
+from django.conf import settings
 from django.core.cache import cache
 
 def scoped_key(namespace, *, family_id=None, user_id=None, suffix=""):
- parts=["parivarsetu",namespace,str(family_id or "global"),str(user_id or "shared"),suffix]
+ parts=[settings.PRODUCT_SLUG,namespace,str(family_id or "global"),str(user_id or "shared"),suffix]
  return ":".join(part for part in parts if part)
 def get_or_set(namespace, factory, *, family_id=None, user_id=None, suffix="", timeout=60):
  key=scoped_key(namespace,family_id=family_id,user_id=user_id,suffix=suffix)

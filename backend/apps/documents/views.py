@@ -11,7 +11,10 @@ from .services.document_service import can_access, log, new_version, upload
 def data(doc): return {"id":str(doc.id),"document_number":doc.document_number,"title":doc.title,"description":doc.description,"original_filename":doc.original_filename,"file_size":doc.file_size,"mime_type":doc.mime_type,"version":doc.version,"visibility":doc.visibility,"status":doc.status,"reference_type":doc.reference_type,"reference_id":str(doc.reference_id or ""),"category":str(doc.category_id or ""),"created_at":doc.created_at}
 class DocumentCategoryViewSet(viewsets.ModelViewSet):
     permission_classes=[permissions.IsAuthenticated]
-    def get_queryset(self): return DocumentCategory.objects.filter(family_id=self.request.user.family_id)
+    def get_queryset(self):
+        if getattr(self, "swagger_fake_view", False):
+            return DocumentCategory.objects.none()
+        return DocumentCategory.objects.filter(family_id=self.request.user.family_id)
     def list(self,request,*a,**k): return success_response(data=list(self.get_queryset().values()))
     def create(self,request,*a,**k):
         if request.user.role != "family_admin": raise PermissionDenied("Only family admins can manage categories.")
@@ -19,6 +22,10 @@ class DocumentCategoryViewSet(viewsets.ModelViewSet):
 class DocumentViewSet(viewsets.ViewSet):
     permission_classes=[permissions.IsAuthenticated]
     def queryset(self): return Document.objects.filter(family_id=self.request.user.family_id,is_deleted=False).select_related("category","owner","household")
+    def get_queryset(self):
+        if getattr(self, "swagger_fake_view", False):
+            return Document.objects.none()
+        return self.queryset()
     def list(self,request):
         qs=self.queryset()
         for field in ("category","household","owner","visibility","status","reference_type"):

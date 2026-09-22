@@ -9,6 +9,11 @@ class StandardResultsPagination(PageNumberPagination):
     page_size_query_param = "page_size"
     max_page_size = 100
 
+    def get_paginated_response_schema(self, schema):
+        from apps.common.openapi import envelope_schema
+
+        return envelope_schema(schema, paginated=True)
+
     def get_paginated_response(self, data):
         return Response(
             {

@@ -31,6 +31,7 @@ class ReportDataView(APIView):
 
 class ExportView(APIView):
     permission_classes = [IsAuthenticated]
+    schema_is_file = True
     def get(self, request, report_type, export_format):
         if export_format not in ("csv", "excel", "print"): return success_response(data=None, message="Supported exports are CSV, Excel and print", status_code=400)
         fields, qs = report_rows(request, report_type); rows = list(qs.values(*fields)[:10000])

@@ -5,9 +5,16 @@ Environment-specific overrides live in development.py / production.py.
 
 from datetime import timedelta
 from pathlib import Path
-import dj_database_url
 
+import dj_database_url
 from decouple import Csv, config
+
+from config import product
+
+PRODUCT_NAME = product.PRODUCT_NAME
+PRODUCT_SLUG = product.PRODUCT_SLUG
+PRODUCT_DOMAIN = product.PRODUCT_DOMAIN
+PLACEHOLDER_EMAIL_DOMAIN = product.PLACEHOLDER_EMAIL_DOMAIN
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
@@ -61,6 +68,12 @@ LOCAL_APPS: list[str] = [
     "apps.dashboard",
     "apps.audit",
     "apps.administration",
+    "apps.billing",
+    "apps.privacy",
+    "apps.referrals",
+    "apps.onboarding",
+    "apps.flags",
+    "apps.assistant",
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -108,11 +121,11 @@ DATABASES = {
     "default": dj_database_url.config(
         default=(
             f"postgresql://"
-            f"{config('DB_USER', default='parivarsetu')}:"
+            f"{config('DB_USER', default=PRODUCT_SLUG)}:"
             f"{config('DB_PASSWORD', default='')}@"
             f"{config('DB_HOST', default='localhost')}:"
             f"{config('DB_PORT', default='5432')}/"
-            f"{config('DB_NAME', default='parivarsetu')}"
+            f"{config('DB_NAME', default=PRODUCT_SLUG)}"
         ),
         conn_max_age=60,
         conn_health_checks=True,
@@ -157,7 +170,7 @@ REST_FRAMEWORK = {
     ],
     "DEFAULT_PAGINATION_CLASS": "apps.common.pagination.StandardResultsPagination",
     "PAGE_SIZE": 20,
-    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+    "DEFAULT_SCHEMA_CLASS": "apps.common.openapi.FamilyNexusAutoSchema",
     "DEFAULT_THROTTLE_CLASSES": [
         "rest_framework.throttling.UserRateThrottle",
         "rest_framework.throttling.AnonRateThrottle",
@@ -180,10 +193,22 @@ SIMPLE_JWT = {
 }
 
 SPECTACULAR_SETTINGS = {
-    "TITLE": "ParivarSetu API",
-    "DESCRIPTION": "Connecting Families Through Financial Transparency",
+    "TITLE": f"{PRODUCT_NAME} API",
+    "DESCRIPTION": (
+        "Connecting Families Through Financial Transparency. "
+        "JSON responses use {success, message, data} plus optional pagination meta. "
+        "File exports and the simplejwt refresh endpoint are not enveloped."
+    ),
     "VERSION": "1.0.0",
     "SERVE_INCLUDE_SCHEMA": False,
+    "SERVE_PERMISSIONS": ["rest_framework.permissions.AllowAny"],
+    "SERVE_AUTHENTICATION": [],
+    "SCHEMA_PATH_PREFIX": "/api/v1",
+    "SWAGGER_UI_SETTINGS": {"persistAuthorization": True},
+    "POSTPROCESSING_HOOKS": [
+        "drf_spectacular.hooks.postprocess_schema_enums",
+        "apps.common.openapi.postprocess_schema",
+    ],
 }
 
 # ---------------------------------------------------------------------------
@@ -203,14 +228,21 @@ CELERY_TASK_SERIALIZER = "json"
 CELERY_RESULT_SERIALIZER = "json"
 CELERY_TIMEZONE = "Asia/Kolkata"
 CELERY_TASK_ALWAYS_EAGER = config("CELERY_TASK_ALWAYS_EAGER", default=False, cast=bool)
+CELERY_BEAT_SCHEDULE = {
+    "weekly-family-summary": {
+        "task": "apps.assistant.tasks.send_weekly_family_summaries",
+        "schedule": 60 * 60 * 24 * 7,
+    }
+}
 
 CACHE_MIDDLEWARE_SECONDS = 60
-CACHE_MIDDLEWARE_KEY_PREFIX = "parivarsetu"
+CACHE_MIDDLEWARE_KEY_PREFIX = PRODUCT_SLUG
 
 CACHES = {
     "default": {
         "BACKEND": "django.core.cache.backends.redis.RedisCache",
         "LOCATION": REDIS_URL,
+        "KEY_PREFIX": PRODUCT_SLUG,
     }
 }
 
@@ -237,13 +269,39 @@ MEDIA_ROOT = BASE_DIR / "media"
 # once a provider is chosen. Templates already exist under templates/emails/.
 # ---------------------------------------------------------------------------
 EMAIL_BACKEND = config("EMAIL_BACKEND", default="django.core.mail.backends.console.EmailBackend")
-DEFAULT_FROM_EMAIL = config("DEFAULT_FROM_EMAIL", default="ParivarSetu <no-reply@parivarsetu.app>")
+DEFAULT_FROM_EMAIL = config(
+    "DEFAULT_FROM_EMAIL",
+    default=f"{PRODUCT_NAME} <no-reply@{PRODUCT_DOMAIN}>",
+)
 
 # ---------------------------------------------------------------------------
 # Auth-specific application settings
 # ---------------------------------------------------------------------------
 PASSWORD_RESET_TOKEN_EXPIRY_MINUTES = 30
 FRONTEND_URL = config("FRONTEND_URL", default="http://localhost:5173")
+
+STRIPE_SECRET_KEY = config("STRIPE_SECRET_KEY", default="")
+STRIPE_WEBHOOK_SECRET = config("STRIPE_WEBHOOK_SECRET", default="")
+STRIPE_PRICE_IDS = {
+    "family": config("STRIPE_FAMILY_PRICE_ID", default=""),
+    "premium": config("STRIPE_PREMIUM_PRICE_ID", default=""),
+}
+RAZORPAY_KEY_ID = config("RAZORPAY_KEY_ID", default="")
+RAZORPAY_KEY_SECRET = config("RAZORPAY_KEY_SECRET", default="")
+RAZORPAY_WEBHOOK_SECRET = config("RAZORPAY_WEBHOOK_SECRET", default="")
+EMAIL_PROVIDER = config("EMAIL_PROVIDER", default="console")
+SENDGRID_API_KEY = config("SENDGRID_API_KEY", default="")
+FIELD_ENCRYPTION_KEY = config("FIELD_ENCRYPTION_KEY", default="")
+ANTHROPIC_API_KEY = config("ANTHROPIC_API_KEY", default="")
+ANTHROPIC_MODEL = config("ANTHROPIC_MODEL", default="claude-sonnet-4-5")
+POSTHOG_API_KEY = config("POSTHOG_API_KEY", default="")
+POSTHOG_HOST = config("POSTHOG_HOST", default="https://us.i.posthog.com")
+TELEGRAM_BOT_TOKEN = config("TELEGRAM_BOT_TOKEN", default="")
+TELEGRAM_WEBHOOK_SECRET = config("TELEGRAM_WEBHOOK_SECRET", default="")
+WHATSAPP_VERIFY_TOKEN = config("WHATSAPP_VERIFY_TOKEN", default="")
+WHATSAPP_APP_SECRET = config("WHATSAPP_APP_SECRET", default="")
+VAULT_ADDR = config("VAULT_ADDR", default="")
+VAULT_TOKEN = config("VAULT_TOKEN", default="")
 
 # ---------------------------------------------------------------------------
 # Logging — separate rotating files for app, error, and security events
@@ -310,6 +368,3 @@ LOGGING = {
         },
     },
 }
-
-
-

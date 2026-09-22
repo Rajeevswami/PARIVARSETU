@@ -1,6 +1,9 @@
 services:
   db:
     image: postgres:17-alpine
+    # This image does not include pgvector. To enable it, switch to
+    # pgvector/pgvector:pg17 and run `python manage.py sync_pgvector`.
+    # Do not change this line until that image has been pulled and checked.
     restart: always
     environment:
       POSTGRES_DB: ${DB_NAME}
@@ -42,7 +45,7 @@ services:
       args:
         ENV: production
     env_file: ./backend/.env
-    command: celery -A config beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler
+    command: celery -A config beat -l info
     restart: always
     depends_on:
       - backend

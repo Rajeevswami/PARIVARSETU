@@ -1,18 +1,25 @@
+# New volumes use FamilyNexus defaults. An existing volume initialized as
+# role/db "parivarsetu" must be renamed with
+# scripts/migrate_parivarsetu_to_familynexus.sh BEFORE these defaults apply.
+# Compose interpolates ${DB_USER} from the root .env or the shell, not from
+# backend/.env. The db healthcheck uses that same value.
 services:
   db:
     image: postgres:17-alpine
+    # This image does not include pgvector. Switch to pgvector/pgvector:pg17
+    # only after that image is pulled, then run sync_pgvector. Do not down -v.
     restart: unless-stopped
     environment:
-      POSTGRES_DB: ${DB_NAME:-parivarsetu}
-      POSTGRES_USER: ${DB_USER:-parivarsetu}
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-parivarsetu}
+      POSTGRES_DB: ${DB_NAME:-familynexus}
+      POSTGRES_USER: ${DB_USER:-familynexus}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-familynexus}
     volumes:
       - pgdata:/var/lib/postgresql/data
       - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
     ports:
       - "5432:5432"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-parivarsetu}"]
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-familynexus}"]
       interval: 5s
       timeout: 5s
       retries: 5

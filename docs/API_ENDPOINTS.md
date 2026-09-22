@@ -1,7 +1,16 @@
 # API Endpoints Overview
 
-Full interactive docs (auto-generated from the code): `GET /api/v1/docs/`
-This file is a human-readable index — the Swagger page is the source of truth.
+Full interactive docs (auto-generated from the code):
+
+- OpenAPI schema: `GET /api/v1/schema/`
+- Swagger UI: `GET /api/v1/docs/`
+- Redoc: `GET /api/v1/redoc/`
+
+Those three are public and unthrottled. Every other `/api/v1/` route is in
+the schema. JSON success responses use `{success, message, data}` plus
+optional pagination `meta`. File exports (`/export/`, `/download/`) and
+`POST /api/v1/auth/token/refresh/` are not enveloped. Authenticated
+operations use the `jwtAuth` bearer scheme.
 
 ## Auth (`/api/v1/auth/`) — Module 3
 
@@ -48,6 +57,24 @@ login-history/, members/<id>/{reset-password,deactivate,reactivate}/
 | POST | `/invitations/` | Send — body: `email` or `mobile`, optional `household`, `role`, `relationship` |
 | POST | `/invitations/accept/` | Public. Body: `token`, plus `first_name`+`password` if the invitee has no account yet |
 | POST | `/invitations/reject/` | Public. Body: `token` |
+
+## Billing, privacy, and assistant
+
+| Method | Path | Notes |
+|---|---|---|
+| GET | `/billing/plans/` | Catalog and the caller's current subscription |
+| POST | `/billing/checkout/` | Body: `plan_code`, `provider` (`manual`, `stripe`, `razorpay`) |
+| POST | `/billing/checkout/confirm/` | Manual provider only |
+| POST | `/billing/webhooks/<provider>/` | Signed provider events. Public, signature required |
+| GET | `/privacy/legal/<document>/` | Public `terms` or `privacy` draft |
+| POST | `/privacy/data-export/` | Caller's own export |
+| POST | `/privacy/deletion/` | Body: `confirm: true` |
+| GET/POST | `/onboarding/` | Progress for the signed-in user |
+| GET/POST | `/referrals/` | Own code, or redeem `{code}` |
+| POST | `/assistant/copilot/` | Premium or `ai_copilot` flag. Body: `message`, `language` |
+| GET | `/health/` | Public database and cache check |
+| GET | `/metrics/` | Staff only |
+| GET | `/administration/ops/` | Staff operations counts |
 
 All list endpoints return the standard paginated envelope
 (`success`/`message`/`data`/`meta`); all others return

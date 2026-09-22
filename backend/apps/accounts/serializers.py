@@ -104,3 +104,13 @@ class LoginHistorySerializer(serializers.Serializer):
     ip_address = serializers.IPAddressField(allow_null=True)
     user_agent = serializers.CharField()
     created_at = serializers.DateTimeField()
+
+
+class TokenPairSerializer(serializers.Serializer):
+    access = serializers.CharField()
+    refresh = serializers.CharField()
+
+
+class LoginResponseSerializer(serializers.Serializer):
+    user = UserProfileSerializer()
+    tokens = TokenPairSerializer()
