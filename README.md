@@ -1,4 +1,4 @@
-# ParivarSetu
+# FamilyNexus
 
 **Connecting Families Through Financial Transparency**
 
@@ -16,7 +16,7 @@ shared ledgers, and joint family financial coordination.
 ## Quick Start
 
 ```bash
-git clone <repo-url> parivarsetu && cd parivarsetu
+git clone https://github.com/Rajeevswami/PARIVARSETU.git familynexus && cd familynexus
 ./scripts/setup.sh
 ```
 
@@ -29,6 +29,7 @@ production deployment.
 
 ## Documentation
 
+- [Rebrand and data migration](docs/REBRAND.md)
 - [Installation Guide](docs/INSTALLATION.md)
 - [Development Guide](docs/DEVELOPMENT.md)
 - [Project Structure](docs/PROJECT_STRUCTURE.md)
@@ -39,20 +40,21 @@ production deployment.
 - [Loan & Borrow/Lend API Documentation](docs/LOAN_API.md)
 - [Accounting Documentation](docs/ACCOUNTING.md)
 - [Ledger API Documentation](docs/LEDGER_API.md)
+- [SaaS core](docs/SAAS.md)
+- [Operations](docs/OPERATIONS.md)
+- [Assistant](docs/ASSISTANT.md)
+- [Launch checks](docs/LAUNCH.md)
+- [Security review notes](docs/SECURITY_REVIEW.md)
 
 ## Project Status
 
-Built module-by-module. Current state: **Ledger Engine & Accounting
-Core** — full double-entry bookkeeping: Chart of Accounts, journals
-(manual and auto-posted), immutable ledger entries, running balances,
-trial balance, cash/bank books, account statements, financial periods
-with carry-forward closing, and adjustment entries. Every Expense/Loan/
-Borrow/Lend event is automatically consumed from their existing posting
-queues and posted as a real, balanced journal — zero changes to those
-modules. 242 backend tests, 40 frontend tests, all passing.
-
-Still not built: Dashboard, Reports UI, Notifications, Document Vault,
-Admin Settings, Deployment.
+The ledger, expenses, loans, documents, and administration modules are in
+place. FamilyNexus adds billing limits, privacy export, referrals,
+onboarding, a family-scoped assistant, and public launch pages. Verified
+on sqlite: 275 backend tests passed. Frontend unit tests: 42 passed.
+`npx tsc -b` and `npm run lint` exited 0. The Playwright suite is one
+public pricing spec and passed against a local Chromium. pgvector is not
+enabled on `postgres:17-alpine`; see `docs/ASSISTANT.md`.
 
 ## Development Commands
 

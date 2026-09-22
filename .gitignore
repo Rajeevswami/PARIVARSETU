@@ -19,6 +19,7 @@ node_modules/
 dist/
 .vite/
 coverage/
+*.tsbuildinfo
 
 # IDE
 .vscode/
@@ -29,3 +30,7 @@ coverage/
 
 # Logs
 *.log
+
+# Playwright
+frontend/test-results/
+frontend/playwright-report/

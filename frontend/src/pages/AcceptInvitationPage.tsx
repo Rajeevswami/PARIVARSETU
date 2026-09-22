@@ -3,6 +3,7 @@ import { useForm } from "react-hook-form";
 import { useNavigate, useSearchParams } from "react-router-dom";
 
 import { Button } from "@/components/ui/button";
+import { APP_NAME } from "@/constants";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAcceptInvitation } from "@/features/members/hooks/useMembers";
@@ -42,7 +43,7 @@ export function AcceptInvitationPage() {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center gap-6 px-4">
       <div className="text-center">
-        <h1 className="text-xl font-semibold">Join your family on ParivarSetu</h1>
+        <h1 className="text-xl font-semibold">Join your family on {APP_NAME}</h1>
         <p className="text-sm text-muted-foreground">
           Set your name and password to accept the invite.
         </p>

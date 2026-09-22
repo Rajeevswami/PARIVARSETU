@@ -6,7 +6,7 @@ import App from "@/App";
 describe("App", () => {
   it("redirects to the login page when there is no session", () => {
     render(<App />);
-    expect(screen.getByRole("heading", { name: "ParivarSetu" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "FamilyNexus" })).toBeInTheDocument();
     expect(screen.getByText(/Sign in to your family's account/i)).toBeInTheDocument();
   });
 });

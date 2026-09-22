@@ -1,4 +1,4 @@
-import {Route, Routes } from "react-router-dom";
+import { Route, Routes } from "react-router-dom";
 
 import { MainLayout } from "@/layouts/MainLayout";
 import { AcceptInvitationPage } from "@/pages/AcceptInvitationPage";
@@ -31,6 +31,12 @@ import { AuditLogsPage } from "@/pages/AuditLogsPage";
 import { SettingsPage } from "@/pages/SettingsPage";
 import { ForbiddenPage, NotFoundPage } from "@/pages/SystemErrorPages";
 import { DocumentsPage } from "@/pages/DocumentsPage";
+import { AssistantPage } from "@/pages/AssistantPage";
+import { BillingPage } from "@/pages/BillingPage";
+import { LandingPage } from "@/pages/LandingPage";
+import { LegalPage } from "@/pages/LegalPage";
+import { PricingPage } from "@/pages/PricingPage";
+import { PrivacyCenterPage } from "@/pages/PrivacyCenterPage";
 
 import { FamilyGuard } from "./FamilyGuard";
 import { ProtectedRoute } from "./ProtectedRoute";
@@ -42,6 +48,9 @@ import { ProtectedRoute } from "./ProtectedRoute";
 export function AppRoutes() {
   return (
     <Routes>
+      <Route path="/welcome" element={<LandingPage />} />
+      <Route path="/pricing" element={<PricingPage />} />
+      <Route path="/legal/:document" element={<LegalPage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/forgot-password" element={<ForgotPasswordPage />} />
       <Route path="/reset-password" element={<ResetPasswordPage />} />
@@ -61,6 +70,9 @@ export function AppRoutes() {
             <Route path="/notifications" element={<NotificationsPage />} />
             <Route path="/audit" element={<AuditLogsPage />} />
             <Route path="/settings" element={<SettingsPage />} />
+            <Route path="/billing" element={<BillingPage />} />
+            <Route path="/assistant" element={<AssistantPage />} />
+            <Route path="/privacy" element={<PrivacyCenterPage />} />
             <Route path="/family" element={<FamilySettingsPage />} />
             <Route path="/households" element={<HouseholdListPage />} />
             <Route path="/households/:id" element={<HouseholdDetailPage />} />
@@ -84,9 +96,3 @@ export function AppRoutes() {
     </Routes>
   );
 }
-
-
-
-
-
-
