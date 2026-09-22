@@ -17,7 +17,7 @@ def api_client():
 
 class TestLogin:
     def test_login_with_email_succeeds(self, api_client):
-        user = UserFactory(email="a@parivarsetu.app", password="Str0ng!Pass1")
+        user = UserFactory(email="a@familynexus.app", password="Str0ng!Pass1")
         resp = api_client.post(
             reverse("accounts:login"),
             {"identifier": user.email, "password": "Str0ng!Pass1"},
@@ -80,7 +80,7 @@ class TestLogin:
     def test_login_unknown_identifier_returns_401_not_500(self, api_client):
         resp = api_client.post(
             reverse("accounts:login"),
-            {"identifier": "nobody@parivarsetu.app", "password": "whatever"},
+            {"identifier": "nobody@familynexus.app", "password": "whatever"},
             format="json",
         )
         assert resp.status_code == 401

@@ -29,7 +29,7 @@ class TestSendInvitation:
         client = _authed_client(admin)
 
         resp = client.post(
-            reverse("members:invitation-list"), {"email": "invitee@parivarsetu.app"}, format="json"
+            reverse("members:invitation-list"), {"email": "invitee@familynexus.app"}, format="json"
         )
         assert resp.status_code == 201
         assert resp.data["data"]["status"] == "pending"
@@ -40,7 +40,7 @@ class TestSendInvitation:
         client = _authed_client(member)
 
         resp = client.post(
-            reverse("members:invitation-list"), {"email": "invitee@parivarsetu.app"}, format="json"
+            reverse("members:invitation-list"), {"email": "invitee@familynexus.app"}, format="json"
         )
         assert resp.status_code == 403
 
@@ -56,11 +56,11 @@ class TestSendInvitation:
         family = FamilyFactory()
         other_family = FamilyFactory()
         admin = UserFactory(password="Str0ng!Pass1", family=family, role="family_admin")
-        UserFactory(email="taken@parivarsetu.app", family=other_family)
+        UserFactory(email="taken@familynexus.app", family=other_family)
         client = _authed_client(admin)
 
         resp = client.post(
-            reverse("members:invitation-list"), {"email": "taken@parivarsetu.app"}, format="json"
+            reverse("members:invitation-list"), {"email": "taken@familynexus.app"}, format="json"
         )
         assert resp.status_code == 400
         assert resp.data["errors"]["code"] == "already_in_family"
@@ -76,7 +76,7 @@ class TestSendInvitation:
         client = _authed_client(admin)
 
         resp = client.post(
-            reverse("members:invitation-list"), {"email": "brandnew@parivarsetu.app"}, format="json"
+            reverse("members:invitation-list"), {"email": "brandnew@familynexus.app"}, format="json"
         )
         assert resp.status_code == 201
 
@@ -89,7 +89,7 @@ class TestSendInvitation:
 
         resp = client.post(
             reverse("members:invitation-list"),
-            {"email": "invitee@parivarsetu.app", "household": str(other_household.id)},
+            {"email": "invitee@familynexus.app", "household": str(other_household.id)},
             format="json",
         )
         assert resp.status_code == 403
@@ -108,7 +108,7 @@ class TestAcceptInvitation:
     def test_accept_creates_new_account_and_member(self):
         family = FamilyFactory()
         admin = UserFactory(password="Str0ng!Pass1", family=family, role="family_admin")
-        self._make_invitation(family, admin, email="newperson@parivarsetu.app")
+        self._make_invitation(family, admin, email="newperson@familynexus.app")
         client = APIClient()
 
         resp = client.post(
@@ -122,7 +122,7 @@ class TestAcceptInvitation:
     def test_accept_rejects_expired_invitation(self):
         family = FamilyFactory()
         admin = UserFactory(password="Str0ng!Pass1", family=family, role="family_admin")
-        invitation = self._make_invitation(family, admin, email="expired@parivarsetu.app")
+        invitation = self._make_invitation(family, admin, email="expired@familynexus.app")
         invitation.expires_at = timezone.now() - timezone.timedelta(days=1)
         invitation.save()
         client = APIClient()
@@ -146,7 +146,7 @@ class TestAcceptInvitation:
     def test_accept_missing_password_for_new_user_rejected(self):
         family = FamilyFactory()
         admin = UserFactory(password="Str0ng!Pass1", family=family, role="family_admin")
-        self._make_invitation(family, admin, email="nopass@parivarsetu.app")
+        self._make_invitation(family, admin, email="nopass@familynexus.app")
         client = APIClient()
 
         resp = client.post(
@@ -162,7 +162,7 @@ class TestRejectInvitation:
         invitation = MemberInvitation.objects.create(
             family=family,
             invited_by=admin,
-            email="reject-me@parivarsetu.app",
+            email="reject-me@familynexus.app",
             token="reject-token",
             expires_at=timezone.now() + timezone.timedelta(days=7),
         )

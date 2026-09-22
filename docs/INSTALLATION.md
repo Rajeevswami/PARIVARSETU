@@ -8,7 +8,7 @@
 ## Quick Start (Docker — recommended)
 
 ```bash
-git clone <repo-url> parivarsetu && cd parivarsetu
+git clone https://github.com/Rajeevswami/PARIVARSETU.git familynexus && cd familynexus
 ./scripts/setup.sh
 ```
 
@@ -17,6 +17,10 @@ containers, waits for Postgres, and runs migrations.
 
 - Backend: http://localhost:8000
 - API docs (Swagger): http://localhost:8000/api/v1/docs/
+- API docs (Redoc): http://localhost:8000/api/v1/redoc/
+
+Existing ParivarSetu volumes must be renamed before these defaults apply.
+See [Rebrand and data migration](REBRAND.md). Do not run `docker compose down -v`.
 - Frontend: http://localhost:5173
 
 ## Manual Setup

@@ -8,7 +8,7 @@ class UserFactory(factory.django.DjangoModelFactory):
         model = User
         skip_postgeneration_save = True
 
-    email = factory.Sequence(lambda n: f"user{n}@parivarsetu.app")
+    email = factory.Sequence(lambda n: f"user{n}@familynexus.app")
     first_name = factory.Faker("first_name")
     last_name = factory.Faker("last_name")
     role = UserRole.MEMBER

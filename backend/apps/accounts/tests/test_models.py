@@ -45,7 +45,7 @@ class TestUserModel:
         assert user.is_login_allowed is False
 
     def test_create_superuser_sets_flags(self):
-        admin = User.objects.create_superuser(email="root@parivarsetu.app", password="Str0ng!Pass1")
+        admin = User.objects.create_superuser(email="root@familynexus.app", password="Str0ng!Pass1")
         assert admin.is_staff is True
         assert admin.is_superuser is True
         assert admin.is_verified is True

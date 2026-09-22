@@ -17,6 +17,7 @@ logger = logging.getLogger("apps.errors")
 
 
 def _send(*, to_email: str, subject: str, template_base: str, context: dict) -> None:
+    context = {**context, "product_name": settings.PRODUCT_NAME}
     text_body = render_to_string(f"emails/{template_base}.txt", context)
     html_body = render_to_string(f"emails/{template_base}.html", context)
 
@@ -38,7 +39,7 @@ def _send(*, to_email: str, subject: str, template_base: str, context: dict) -> 
 def send_password_reset_email(*, user, reset_link: str) -> None:
     _send(
         to_email=user.email,
-        subject="Reset your ParivarSetu password",
+        subject=f"Reset your {settings.PRODUCT_NAME} password",
         template_base="password_reset",
         context={
             "first_name": user.first_name,
@@ -51,7 +52,7 @@ def send_password_reset_email(*, user, reset_link: str) -> None:
 def send_welcome_email(*, user) -> None:
     _send(
         to_email=user.email,
-        subject="Welcome to ParivarSetu",
+        subject=f"Welcome to {settings.PRODUCT_NAME}",
         template_base="welcome",
         context={"first_name": user.first_name, "login_link": settings.FRONTEND_URL},
     )
@@ -62,7 +63,7 @@ def send_invitation_email(
 ) -> None:
     _send(
         to_email=to_email,
-        subject=f"{invited_by_name} invited you to join {family_name} on ParivarSetu",
+        subject=f"{invited_by_name} invited you to join {family_name} on {settings.PRODUCT_NAME}",
         template_base="invitation",
         context={
             "invited_by_name": invited_by_name,
