@@ -5,6 +5,7 @@ from rest_framework.exceptions import PermissionDenied
 from apps.common.response import success_response
 from .models import Announcement, ActivityTimeline, Notification, NotificationPreference, SecurityEvent, LoginHistory
 class NotificationViewSet(viewsets.ViewSet):
+ queryset=Notification.objects.none()
  permission_classes=[permissions.IsAuthenticated]
  def list(self,request):
   qs=Notification.objects.filter(recipient=request.user,status="active")
@@ -40,10 +41,14 @@ class AnnouncementViewSet(viewsets.ViewSet):
 class SecurityViewSet(viewsets.ViewSet):
  permission_classes=[permissions.IsAuthenticated]
  def list(self,request):
-  if request.user.role=="family_admin":qs=SecurityEvent.objects.filter(member__family_id=request.user.family_id)
-  else:qs=SecurityEvent.objects.filter(member=getattr(request.user,"member_profile",None))
+  if not request.user.family_id: return success_response(data=[])
+  qs=SecurityEvent.objects.filter(family_id=request.user.family_id)
+  if request.user.role!="family_admin": qs=qs.filter(member=getattr(request.user,"member_profile",None))
   return success_response(data=list(qs.values()[:100]))
 class LoginHistoryViewSet(viewsets.ViewSet):
  permission_classes=[permissions.IsAuthenticated]
  def list(self,request):
-  qs=LoginHistory.objects.filter(member__family_id=request.user.family_id) if request.user.role=="family_admin" else LoginHistory.objects.filter(member=getattr(request.user,"member_profile",None)); return success_response(data=list(qs.values()[:100]))
+  if not request.user.family_id: return success_response(data=[])
+  qs=LoginHistory.objects.filter(family_id=request.user.family_id)
+  if request.user.role!="family_admin": qs=qs.filter(member=getattr(request.user,"member_profile",None))
+  return success_response(data=list(qs.values()[:100]))

@@ -213,9 +213,10 @@ class AdjustmentViewSet(viewsets.ModelViewSet):
     http_method_names = ["get", "post", "head", "options"]
 
     def get_queryset(self):
-        if getattr(self, "swagger_fake_view", False):
-            return None
         from .models import AdjustmentEntry
+
+        if getattr(self, "swagger_fake_view", False):
+            return AdjustmentEntry.objects.none()
 
         user = self.request.user
         if user.family_id is None:
@@ -354,8 +355,12 @@ class FamilyFinancialSummaryView(APIView):
         family_id = request.user.family_id
         return success_response(
             data={
-                "family_balance": str(balance_service.get_family_balance(family_id)),
-                "household_balance": str(balance_service.get_household_balance(family_id)),
+                "family_balance": balance_service.money(
+                    balance_service.get_family_balance(family_id)
+                ),
+                "household_balance": balance_service.money(
+                    balance_service.get_household_balance(family_id)
+                ),
                 "cash_and_bank": balance_service.get_cash_and_bank_summary(family_id),
                 "income_expense": balance_service.get_income_expense_summary(family_id),
             }
@@ -364,6 +369,7 @@ class FamilyFinancialSummaryView(APIView):
 
 class JournalRegisterExportView(APIView):
     permission_classes = [permissions.IsAuthenticated]
+    schema_is_file = True
 
     def get(self, request):
         journals = statement_service.journal_register(

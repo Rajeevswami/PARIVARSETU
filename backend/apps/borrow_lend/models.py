@@ -209,6 +209,9 @@ class Settlement(models.Model):
     """
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    family = models.ForeignKey(
+        "families.Family", on_delete=models.CASCADE, related_name="borrow_lend_settlements"
+    )
 
     reference_type = models.CharField(max_length=20, choices=SettlementReferenceType.choices)
     reference_id = models.UUIDField()

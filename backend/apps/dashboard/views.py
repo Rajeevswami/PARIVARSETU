@@ -35,14 +35,14 @@ class DashboardView(APIView):
         data = {"dashboard_type": "family" if request.user.role == "family_admin" else "member", "kpis": {
           "total_expenses": total_expenses, "total_income": ZERO, "net_balance": -total_expenses,
           "outstanding_loans": total_loans, "monthly_savings": -amount(monthly_expenses),
-          "pending_settlements": amount(Settlement.objects.filter(member__family_id=family_id, status="recorded"), "remaining_amount"),
+          "pending_settlements": amount(Settlement.objects.filter(family_id=family_id, status="recorded"), "remaining_amount"),
           "active_members": Member.objects.filter(family_id=family_id, status="active", is_deleted=False).count(),
           "households": Household.objects.filter(family_id=family_id, is_deleted=False).count(),
           "borrow_amount": amount(borrows), "lend_amount": amount(lends),
         }, "recent": {
           "expenses": list(expenses.order_by("-expense_date")[:5].values("id", "expense_number", "title", "amount", "expense_date")),
           "loans": list(loans.order_by("-loan_date")[:5].values("id", "loan_number", "title", "remaining_amount", "status")),
-          "settlements": list(Settlement.objects.filter(member__family_id=family_id).order_by("-settlement_date")[:5].values("id", "amount", "settlement_date", "status")),
+          "settlements": list(Settlement.objects.filter(family_id=family_id).order_by("-settlement_date")[:5].values("id", "amount", "settlement_date", "status")),
         }}
         record(actor=request.user, action="dashboard_viewed", family_id=family_id)
         return success_response(data=data)
