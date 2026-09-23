@@ -18,6 +18,8 @@ import { LoanDetailPage } from "@/pages/LoanDetailPage";
 import { LoanListPage } from "@/pages/LoanListPage";
 import { LoanRemindersPage } from "@/pages/LoanRemindersPage";
 import { LoginPage } from "@/pages/LoginPage";
+import { SignupPage } from "@/pages/SignupPage";
+import { VerifyEmailPage } from "@/pages/VerifyEmailPage";
 import { MemberDirectoryPage } from "@/pages/MemberDirectoryPage";
 import { MemberProfilePage } from "@/pages/MemberProfilePage";
 import { OnboardingPage } from "@/pages/OnboardingPage";
@@ -52,6 +54,8 @@ export function AppRoutes() {
       <Route path="/pricing" element={<PricingPage />} />
       <Route path="/legal/:document" element={<LegalPage />} />
       <Route path="/login" element={<LoginPage />} />
+      <Route path="/signup" element={<SignupPage />} />
+      <Route path="/verify-email" element={<VerifyEmailPage />} />
       <Route path="/forgot-password" element={<ForgotPasswordPage />} />
       <Route path="/reset-password" element={<ResetPasswordPage />} />
       <Route path="/accept-invitation" element={<AcceptInvitationPage />} />

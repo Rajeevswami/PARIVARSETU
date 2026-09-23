@@ -14,6 +14,9 @@ export function LandingPage() {
       </p>
       <div className="flex gap-3">
         <Button asChild>
+          <Link to="/signup">Create account</Link>
+        </Button>
+        <Button asChild variant="outline">
           <Link to="/login">Sign in</Link>
         </Button>
         <Button asChild variant="outline">

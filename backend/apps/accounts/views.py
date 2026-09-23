@@ -22,6 +22,63 @@ from .services import auth_service, profile_service, user_management_service
 
 
 @method_decorator(ratelimit(key="ip", rate="10/m", method="POST", block=True), name="post")
+class RegisterView(APIView):
+    permission_classes = [AllowAny]
+    serializer_class = serializers.RegisterSerializer
+
+    def post(self, request):
+        serializer = serializers.RegisterSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        try:
+            result = auth_service.register(
+                name=serializer.validated_data["name"],
+                email=serializer.validated_data["email"],
+                password=serializer.validated_data["password"],
+                request=request,
+            )
+        except ApplicationError as exc:
+            return error_response(exc.message, {"code": exc.code}, exc.status_code)
+
+        if result["verification_required"]:
+            return success_response(
+                data={"email": result["email"], "verification_required": True},
+                message="Check your email to verify your account.",
+                status_code=201,
+            )
+        return success_response(
+            data={
+                "user": serializers.UserProfileSerializer(result["user"]).data,
+                "tokens": result["tokens"],
+                "verification_required": False,
+            },
+            message="Account created",
+            status_code=201,
+        )
+
+
+class VerifyEmailView(APIView):
+    permission_classes = [AllowAny]
+    serializer_class = serializers.VerifyEmailSerializer
+
+    def post(self, request):
+        serializer = serializers.VerifyEmailSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        try:
+            result = auth_service.verify_email(
+                token=serializer.validated_data["token"], request=request
+            )
+        except ApplicationError as exc:
+            return error_response(exc.message, {"code": exc.code}, exc.status_code)
+        return success_response(
+            data={
+                "user": serializers.UserProfileSerializer(result["user"]).data,
+                "tokens": result["tokens"],
+            },
+            message="Email verified",
+        )
+
+
+@method_decorator(ratelimit(key="ip", rate="10/m", method="POST", block=True), name="post")
 class LoginView(APIView):
     permission_classes = [AllowAny]
     serializer_class = serializers.LoginSerializer

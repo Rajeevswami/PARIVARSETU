@@ -12,7 +12,8 @@ export function LoginPage() {
       </div>
       <LoginForm />
       <p className="text-sm">
-        <Link to="/welcome">About FamilyNexus</Link> · <Link to="/pricing">Pricing</Link>
+        <Link to="/signup">Create an account</Link> · <Link to="/welcome">About FamilyNexus</Link> ·{" "}
+        <Link to="/pricing">Pricing</Link>
       </p>
     </main>
   );

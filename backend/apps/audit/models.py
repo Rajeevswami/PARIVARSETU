@@ -12,6 +12,8 @@ from django.db import models
 
 
 class AuditAction(models.TextChoices):
+    USER_REGISTERED = "user_registered", "User Registered"
+    EMAIL_VERIFIED = "email_verified", "Email Verified"
     LOGIN = "login", "Login"
     LOGIN_FAILED = "login_failed", "Login Failed"
     LOGOUT = "logout", "Logout"

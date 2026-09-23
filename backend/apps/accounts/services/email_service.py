@@ -49,6 +49,15 @@ def send_password_reset_email(*, user, reset_link: str) -> None:
     )
 
 
+def send_verification_email(*, user, verify_link: str) -> None:
+    _send(
+        to_email=user.email,
+        subject=f"Verify your {settings.PRODUCT_NAME} email",
+        template_base="verify_email",
+        context={"first_name": user.first_name, "verify_link": verify_link},
+    )
+
+
 def send_welcome_email(*, user) -> None:
     _send(
         to_email=user.email,

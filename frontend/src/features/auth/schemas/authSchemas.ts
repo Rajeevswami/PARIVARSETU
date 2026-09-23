@@ -11,6 +11,19 @@ const passwordSchema = z
   .regex(/\d/, "Include at least one number.")
   .regex(/[!@#$%^&*()\-_=+[\]{};:'",.<>/?\\|`~]/, "Include at least one special character.");
 
+export const signupSchema = z
+  .object({
+    name: z.string().trim().min(1, "Name is required.").max(301),
+    email: z.string().trim().email("Enter a valid email address."),
+    password: passwordSchema,
+    confirmPassword: z.string().min(1, "Please confirm your password."),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords do not match.",
+    path: ["confirmPassword"],
+  });
+export type SignupFormValues = z.infer<typeof signupSchema>;
+
 export const loginSchema = z.object({
   identifier: z.string().min(1, "Enter your email or mobile number."),
   password: z.string().min(1, "Password is required."),

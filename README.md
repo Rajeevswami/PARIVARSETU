@@ -18,11 +18,13 @@ Public landing and pricing are separate from the signed-in app.
 
 ![Onboarding](docs/screenshots/onboarding.png)
 
+![Signup](docs/screenshots/signup.png)
+
 ## Features
 
 ### Core
 
-- Email or mobile login, refresh tokens, invitations, and role-based family access. There is no public signup; a family admin invites members.
+- Public signup at `/signup` and `POST /api/v1/auth/register/`. Development auto-verifies and returns tokens. Production sends a verification email and waits for `POST /api/v1/auth/verify-email/`. Family admins can still invite members.
 - Family, household, and member records.
 - Expenses, loans, borrow/lend, documents, notifications, and audit logs.
 - Double-entry journals, chart of accounts, trial balance, and statements. Creating a family seeds the chart of accounts.
@@ -109,7 +111,7 @@ cd frontend && npm run lint && npx tsc -b && npm run test && npm run build
 
 ## Current status
 
-Live without extra keys: auth, family creation, ledger CRUD, plan listing, manual checkout, public landing/pricing, and WhatsApp challenge verification.
+Live without extra keys: signup (auto-verified while `DEBUG=True`), auth, family creation, ledger CRUD, plan listing, manual checkout, public landing/pricing, and WhatsApp challenge verification.
 
 Needs a key or service, with no further code change:
 
@@ -121,10 +123,9 @@ Needs a key or service, with no further code change:
 
 Still partial:
 
-- No public `/signup` or register API. `/signup` is the app 404 page.
 - Onboarding UI creates a family only. It does not render the household, plan, and legal steps stored by `/api/v1/onboarding/`.
 - Receipt extraction parses text. It does not OCR an image.
 - WhatsApp does not record expenses. Telegram does, for a linked member.
 - pgvector is not enabled on `postgres:17-alpine`, so embedding sync stays a no-op until that column exists. See [docs/ASSISTANT.md](docs/ASSISTANT.md).
 
-Verified on this branch: backend `279 passed`, frontend unit tests `42 passed`, `makemigrations --check` clean, `npm run build`, `tsc -b`, and `npm run lint` exited 0.
+Verified on this branch: backend `283 passed`, frontend unit tests `46 passed`, `makemigrations --check` clean, `npm run build` was already green, `tsc -b`, and `npm run lint` exited 0.
