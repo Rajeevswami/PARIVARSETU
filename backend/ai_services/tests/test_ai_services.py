@@ -46,12 +46,16 @@ def test_forecast_and_category_are_deterministic():
     assert anomalies(expenses) == []
 
 
-def test_sqlite_has_no_pgvector_and_sync_is_a_noop():
+def test_sync_is_a_noop_until_the_vector_column_exists():
+    from django.db import connection
+
     from ai_services.vectors import pgvector_status, sync_json_embeddings
 
     status = pgvector_status()
-    assert status["vendor"] == "sqlite"
-    assert status["extension_available"] is False
+    assert status["vendor"] == connection.vendor
+    if status["column_ready"]:
+        assert status["extension_available"] is True
+        return
     assert status["column_ready"] is False
     assert sync_json_embeddings() == 0
 

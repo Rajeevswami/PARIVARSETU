@@ -55,28 +55,7 @@ jobs:
           DB_USER: familynexus
           DB_PASSWORD: familynexus
           REDIS_URL: redis://localhost:6379/0
-        run: |
-          cd backend
-          set +e
-          pytest --tb=short -q > /tmp/pytest.out 2>&1
-          code=$?
-          set -e
-          tail -n 60 /tmp/pytest.out
-          if [ "$code" -ne 0 ]; then
-            python - <<'PY'
-          from pathlib import Path
-          text = Path("/tmp/pytest.out").read_text(errors="replace")
-          interesting = [
-              line
-              for line in text.splitlines()
-              if line.startswith(("FAILED", "ERROR", "E ", "=")) or "Error" in line
-          ]
-          summary = "\n".join((interesting or text.splitlines())[-25:])
-          summary = summary.replace("%", "%25").replace("\r", "").replace("\n", "%0A")
-          print(f"::error::pytest failed%0A{summary[:3500]}")
-          PY
-            exit "$code"
-          fi
+        run: cd backend && pytest
 
   frontend:
     runs-on: ubuntu-latest
