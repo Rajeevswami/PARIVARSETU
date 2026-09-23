@@ -8,4 +8,5 @@ class AdministrationConfig(AppConfig):
 
     def ready(self):
         from apps.common import tenant_scope  # noqa: F401
+
         from . import signals  # noqa: F401

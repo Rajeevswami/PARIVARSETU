@@ -1,1 +1,1 @@
-
+"""Administration package."""
