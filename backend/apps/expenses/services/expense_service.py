@@ -31,6 +31,11 @@ def _assert_household_in_family(household: Household | None, family_id) -> None:
 
 
 def create_expense(*, actor, family_id, data: dict, split_type: str, split_data) -> Expense:
+    from apps.billing.services.entitlements import assert_can_add
+    from apps.families.models import Family
+
+    family = Family.objects.filter(id=family_id).first()
+    assert_can_add(family, "expenses")
     paid_by: Member = data["paid_by"]
     _assert_member_in_family(paid_by, family_id)
     _assert_household_in_family(data.get("household"), family_id)

@@ -9,7 +9,7 @@ endpoint handles both, resolved by a single lookup
 (`Q(email__iexact=identifier) | Q(mobile=identifier)`).
 
 ```json
-{ "identifier": "user@parivarsetu.app", "password": "Str0ng!Pass1" }
+{ "identifier": "user@familynexus.app", "password": "Str0ng!Pass1" }
 ```
 
 Returns `{ user, tokens: { access, refresh } }` on success. Rejects:
@@ -28,7 +28,10 @@ accounts (`account_inactive`, 403), and wrong credentials
   for the current user (all devices/sessions).
 
 Frontend: the access token lives in memory only; the refresh token is in
-`localStorage`. `src/api/axios.ts` attaches the access token to every
+`localStorage` under `familynexus_access_token`. On first boot the app
+copies `parivarsetu_access_token` and `parivarsetu-theme` once and does
+not overwrite a value already stored under the new key.
+`src/api/axios.ts` attaches the access token to every
 request and, on a 401, does a single-flight silent refresh before
 retrying the original request once.
 

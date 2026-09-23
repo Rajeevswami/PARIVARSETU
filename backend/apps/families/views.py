@@ -21,6 +21,8 @@ class FamilyViewSet(viewsets.ModelViewSet):
     http_method_names = ["get", "post", "patch", "head", "options"]
 
     def get_queryset(self):
+        if getattr(self, "swagger_fake_view", False):
+            return Family.objects.none()
         user = self.request.user
         qs = (
             Family.objects.filter(is_deleted=False)

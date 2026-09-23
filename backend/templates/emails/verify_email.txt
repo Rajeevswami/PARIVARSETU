@@ -1,0 +1,7 @@
+Hi {{ first_name }},
+
+Confirm your email to finish creating your {{ product_name }} account:
+
+{{ verify_link }}
+
+If you did not sign up, you can ignore this message.

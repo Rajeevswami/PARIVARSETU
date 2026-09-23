@@ -186,6 +186,9 @@ class InstallmentStatus(models.TextChoices):
 
 class LoanInstallment(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    family = models.ForeignKey(
+        "families.Family", on_delete=models.CASCADE, related_name="loan_installments"
+    )
 
     loan = models.ForeignKey(Loan, on_delete=models.CASCADE, related_name="installments")
     installment_number = models.PositiveIntegerField()
@@ -234,6 +237,9 @@ def generate_payment_number() -> str:
 
 class LoanPayment(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    family = models.ForeignKey(
+        "families.Family", on_delete=models.CASCADE, related_name="loan_payments"
+    )
 
     loan = models.ForeignKey(Loan, on_delete=models.CASCADE, related_name="payments")
     installment = models.ForeignKey(

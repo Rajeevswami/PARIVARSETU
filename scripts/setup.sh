@@ -14,11 +14,25 @@ if grep -q "change-me-to-a-long-random-string" backend/.env; then
   echo "Generated SECRET_KEY in backend/.env"
 fi
 
+# Compose interpolates DB_* from the shell or a root .env, not backend/.env.
+# Export the identity keys so a new install and an unmigrated volume agree.
+read_env() {
+  local key="$1"
+  [ -f backend/.env ] || return 0
+  grep -E "^${key}=" backend/.env | head -1 | cut -d= -f2- | tr -d '"' | tr -d "'"
+}
+db_name="$(read_env DB_NAME)"
+db_user="$(read_env DB_USER)"
+db_password="$(read_env DB_PASSWORD)"
+[ -n "$db_name" ] && export DB_NAME="$db_name"
+[ -n "$db_user" ] && export DB_USER="$db_user"
+[ -n "$db_password" ] && export DB_PASSWORD="$db_password"
+
 echo "Building and starting containers..."
 docker compose up --build -d
 
 echo "Waiting for the database to be ready..."
-until docker compose exec -T db pg_isready -U "${DB_USER:-parivarsetu}" >/dev/null 2>&1; do
+until docker compose exec -T db pg_isready -U "${DB_USER:-familynexus}" >/dev/null 2>&1; do
   sleep 1
 done
 

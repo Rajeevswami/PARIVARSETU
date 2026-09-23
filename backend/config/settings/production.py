@@ -26,9 +26,16 @@ if SENTRY_DSN:
     import sentry_sdk
     from sentry_sdk.integrations.django import DjangoIntegration
 
+    integrations = [DjangoIntegration()]
+    try:
+        from sentry_sdk.integrations.celery import CeleryIntegration
+
+        integrations.append(CeleryIntegration())
+    except ImportError:
+        pass
     sentry_sdk.init(
         dsn=SENTRY_DSN,
-        integrations=[DjangoIntegration()],
+        integrations=integrations,
         traces_sample_rate=0.1,
         send_default_pii=False,
     )

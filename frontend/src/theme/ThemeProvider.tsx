@@ -1,5 +1,7 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 
+import { THEME_STORAGE_KEY } from "@/constants";
+
 type Theme = "light" | "dark" | "system";
 
 interface ThemeContextValue {
@@ -8,7 +10,7 @@ interface ThemeContextValue {
 }
 
 const ThemeContext = createContext<ThemeContextValue | undefined>(undefined);
-const STORAGE_KEY = "parivarsetu-theme";
+const STORAGE_KEY = THEME_STORAGE_KEY;
 
 function resolveSystemTheme(): "light" | "dark" {
   return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";

@@ -22,8 +22,67 @@ from .services import auth_service, profile_service, user_management_service
 
 
 @method_decorator(ratelimit(key="ip", rate="10/m", method="POST", block=True), name="post")
+class RegisterView(APIView):
+    permission_classes = [AllowAny]
+    serializer_class = serializers.RegisterSerializer
+
+    def post(self, request):
+        serializer = serializers.RegisterSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        try:
+            result = auth_service.register(
+                name=serializer.validated_data["name"],
+                email=serializer.validated_data["email"],
+                password=serializer.validated_data["password"],
+                request=request,
+            )
+        except ApplicationError as exc:
+            return error_response(exc.message, {"code": exc.code}, exc.status_code)
+
+        if result["verification_required"]:
+            return success_response(
+                data={"email": result["email"], "verification_required": True},
+                message="Check your email to verify your account.",
+                status_code=201,
+            )
+        return success_response(
+            data={
+                "user": serializers.UserProfileSerializer(result["user"]).data,
+                "tokens": result["tokens"],
+                "verification_required": False,
+            },
+            message="Account created",
+            status_code=201,
+        )
+
+
+class VerifyEmailView(APIView):
+    permission_classes = [AllowAny]
+    serializer_class = serializers.VerifyEmailSerializer
+
+    def post(self, request):
+        serializer = serializers.VerifyEmailSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        try:
+            result = auth_service.verify_email(
+                token=serializer.validated_data["token"], request=request
+            )
+        except ApplicationError as exc:
+            return error_response(exc.message, {"code": exc.code}, exc.status_code)
+        return success_response(
+            data={
+                "user": serializers.UserProfileSerializer(result["user"]).data,
+                "tokens": result["tokens"],
+            },
+            message="Email verified",
+        )
+
+
+@method_decorator(ratelimit(key="ip", rate="10/m", method="POST", block=True), name="post")
 class LoginView(APIView):
     permission_classes = [AllowAny]
+    serializer_class = serializers.LoginSerializer
+    response_serializer_class = serializers.LoginResponseSerializer
 
     def post(self, request):
         serializer = serializers.LoginSerializer(data=request.data)
@@ -50,6 +109,7 @@ class LoginView(APIView):
 
 class LogoutView(APIView):
     permission_classes = [IsAuthenticated]
+    serializer_class = serializers.LogoutSerializer
 
     def post(self, request):
         serializer = serializers.LogoutSerializer(data=request.data)
@@ -83,6 +143,7 @@ class LogoutAllView(APIView):
 )
 class ForgotPasswordView(APIView):
     permission_classes = [AllowAny]
+    serializer_class = serializers.ForgotPasswordSerializer
 
     def post(self, request):
         serializer = serializers.ForgotPasswordSerializer(data=request.data)
@@ -99,6 +160,7 @@ class ForgotPasswordView(APIView):
 
 class ResetPasswordView(APIView):
     permission_classes = [AllowAny]
+    serializer_class = serializers.ResetPasswordSerializer
 
     def post(self, request):
         serializer = serializers.ResetPasswordSerializer(data=request.data)
@@ -118,6 +180,7 @@ class ResetPasswordView(APIView):
 
 class ChangePasswordView(APIView):
     permission_classes = [IsAuthenticated]
+    serializer_class = serializers.ChangePasswordSerializer
 
     def post(self, request):
         serializer = serializers.ChangePasswordSerializer(data=request.data)
@@ -138,6 +201,13 @@ class ChangePasswordView(APIView):
 
 class ProfileView(APIView):
     permission_classes = [IsAuthenticated]
+    serializer_class = serializers.UserProfileSerializer
+    response_serializer_class = serializers.UserProfileSerializer
+
+    def get_serializer_class(self):
+        if getattr(self.request, "method", "GET") == "PATCH":
+            return serializers.ProfileUpdateSerializer
+        return serializers.UserProfileSerializer
 
     def get(self, request):
         return success_response(data=serializers.UserProfileSerializer(request.user).data)
@@ -159,6 +229,7 @@ class ProfileView(APIView):
 class AvatarUploadView(APIView):
     permission_classes = [IsAuthenticated]
     parser_classes = [MultiPartParser]
+    serializer_class = serializers.AvatarUploadSerializer
 
     def post(self, request):
         serializer = serializers.AvatarUploadSerializer(data=request.data)
@@ -179,6 +250,8 @@ class LoginHistoryView(generics.ListAPIView):
     serializer_class = serializers.LoginHistorySerializer
 
     def get_queryset(self):
+        if getattr(self, "swagger_fake_view", False):
+            return AuditLog.objects.none()
         return AuditLog.objects.filter(
             actor=self.request.user,
             action__in=["login", "login_failed", "logout", "logout_all"],

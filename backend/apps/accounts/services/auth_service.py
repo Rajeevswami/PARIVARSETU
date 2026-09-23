@@ -16,8 +16,8 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from apps.audit import services as audit_services
 from apps.common.exceptions import ApplicationError
 
-from ..models import PasswordResetToken
-from ..tasks import send_password_reset_email_task
+from ..models import EmailVerificationToken, PasswordResetToken, UserRole, UserStatus
+from ..tasks import deliver, send_password_reset_email_task, send_verification_email_task
 
 User = get_user_model()
 
@@ -33,6 +33,76 @@ def _client_meta(request) -> dict:
     xff = request.META.get("HTTP_X_FORWARDED_FOR")
     ip = xff.split(",")[0].strip() if xff else request.META.get("REMOTE_ADDR")
     return {"ip_address": ip, "user_agent": request.META.get("HTTP_USER_AGENT", "")[:255]}
+
+
+VERIFICATION_HOURS = 24
+
+
+def register(*, name: str, email: str, password: str, request=None) -> dict:
+    """Create a public account. Development auto-verifies and returns tokens."""
+    meta = _client_meta(request)
+    normalized = User.objects.normalize_email(email).lower()
+    if User.objects.filter(email__iexact=normalized).exists():
+        raise ApplicationError(
+            "An account with this email already exists.",
+            code="email_taken",
+            status_code=409,
+        )
+
+    first_name, _, last_name = name.strip().partition(" ")
+    auto_verify = bool(settings.DEBUG)
+    user = User.objects.create_user(
+        email=normalized,
+        password=password,
+        first_name=first_name,
+        last_name=last_name,
+        role=UserRole.MEMBER,
+        status=UserStatus.ACTIVE if auto_verify else UserStatus.PENDING_VERIFICATION,
+        is_verified=auto_verify,
+    )
+    token = secrets.token_urlsafe(32)
+    EmailVerificationToken.objects.create(
+        user=user,
+        token=token,
+        expires_at=timezone.now() + timedelta(hours=VERIFICATION_HOURS),
+    )
+    verify_link = f"{settings.FRONTEND_URL}/verify-email?token={token}"
+    from . import email_service
+
+    deliver(
+        send_verification_email_task,
+        (str(user.id), verify_link),
+        lambda: email_service.send_verification_email(user=user, verify_link=verify_link),
+    )
+    audit_services.record(actor=user, action=audit_services.AuditAction.USER_REGISTERED, **meta)
+    if auto_verify:
+        return {
+            "user": user,
+            "tokens": _issue_tokens(user),
+            "verification_required": False,
+            "email": user.email,
+        }
+    return {"user": None, "tokens": None, "verification_required": True, "email": user.email}
+
+
+def verify_email(*, token: str, request=None) -> dict:
+    meta = _client_meta(request)
+    record = EmailVerificationToken.objects.select_related("user").filter(token=token).first()
+    if record is None or not record.is_valid:
+        raise ApplicationError(
+            "This verification link is invalid or has expired.",
+            code="invalid_token",
+            status_code=400,
+        )
+
+    user = record.user
+    user.is_verified = True
+    user.status = UserStatus.ACTIVE
+    user.save(update_fields=["is_verified", "status", "updated_at"])
+    record.used_at = timezone.now()
+    record.save(update_fields=["used_at"])
+    audit_services.record(actor=user, action=audit_services.AuditAction.EMAIL_VERIFIED, **meta)
+    return {"user": user, "tokens": _issue_tokens(user)}
 
 
 def login(*, identifier: str, password: str, request=None) -> dict:

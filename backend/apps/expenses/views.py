@@ -357,6 +357,7 @@ class ExpenseViewSet(viewsets.ModelViewSet):
 
 class AttachmentDownloadView(APIView):
     permission_classes = [permissions.IsAuthenticated]
+    serializer_class = ExpenseAttachmentSerializer
 
     def get(self, request, attachment_id):
         from .models import ExpenseAttachment

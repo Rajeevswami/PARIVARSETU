@@ -7,6 +7,9 @@ from ..models import Household
 
 
 def create_household(*, admin, data: dict) -> Household:
+    from apps.billing.services.entitlements import assert_can_add
+
+    assert_can_add(admin.family, "households")
     household = Household.objects.create(
         family_id=admin.family_id, created_by=admin, updated_by=admin, **data
     )

@@ -1,4 +1,4 @@
-{{ invited_by_name }} has invited you to join {{ family_name }} on ParivarSetu.
+{{ invited_by_name }} has invited you to join {{ family_name }} on {{ product_name }}.
 
 Accept your invitation: {{ invite_link }}
 

@@ -95,7 +95,7 @@ class TestForgotAndResetPassword:
     def test_forgot_password_always_returns_200(self, api_client):
         resp = api_client.post(
             reverse("accounts:forgot_password"),
-            {"identifier": "nobody@parivarsetu.app"},
+            {"identifier": "nobody@familynexus.app"},
             format="json",
         )
         assert resp.status_code == 200

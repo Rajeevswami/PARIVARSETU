@@ -52,7 +52,7 @@ class TestProfile:
         client = _authed_client(user)
         original_email = user.email
         client.patch(
-            reverse("accounts:profile"), {"email": "hacked@parivarsetu.app"}, format="json"
+            reverse("accounts:profile"), {"email": "hacked@familynexus.app"}, format="json"
         )
         user.refresh_from_db()
         assert user.email == original_email

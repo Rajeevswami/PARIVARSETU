@@ -7,7 +7,29 @@ interface LoginResponseData {
   tokens: AuthTokens;
 }
 
+export interface RegisterResponseData {
+  verification_required: boolean;
+  email?: string;
+  user?: User;
+  tokens?: AuthTokens;
+}
+
 export const authApi = {
+  register: (payload: {
+    name: string;
+    email: string;
+    password: string;
+    confirm_password: string;
+  }) =>
+    api
+      .post<ApiResponse<RegisterResponseData>>("/auth/register/", payload)
+      .then((r) => r.data.data),
+
+  verifyEmail: (token: string) =>
+    api
+      .post<ApiResponse<LoginResponseData>>("/auth/verify-email/", { token })
+      .then((r) => r.data.data),
+
   login: (identifier: string, password: string) =>
     api
       .post<ApiResponse<LoginResponseData>>("/auth/login/", { identifier, password })

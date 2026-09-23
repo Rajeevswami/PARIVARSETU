@@ -13,12 +13,12 @@ jobs:
       postgres:
         image: postgres:17-alpine
         env:
-          POSTGRES_DB: parivarsetu_test
-          POSTGRES_USER: parivarsetu
-          POSTGRES_PASSWORD: parivarsetu
+          POSTGRES_DB: familynexus_test
+          POSTGRES_USER: familynexus
+          POSTGRES_PASSWORD: familynexus
         ports: ["5432:5432"]
         options: >-
-          --health-cmd "pg_isready -U parivarsetu"
+          --health-cmd "pg_isready -U familynexus"
           --health-interval 5s
           --health-timeout 5s
           --health-retries 5
@@ -42,18 +42,18 @@ jobs:
         env:
           SECRET_KEY: ci-test-key
           DB_HOST: localhost
-          DB_NAME: parivarsetu_test
-          DB_USER: parivarsetu
-          DB_PASSWORD: parivarsetu
+          DB_NAME: familynexus_test
+          DB_USER: familynexus
+          DB_PASSWORD: familynexus
           REDIS_URL: redis://localhost:6379/0
         run: cd backend && python manage.py check
       - name: Tests
         env:
           SECRET_KEY: ci-test-key
           DB_HOST: localhost
-          DB_NAME: parivarsetu_test
-          DB_USER: parivarsetu
-          DB_PASSWORD: parivarsetu
+          DB_NAME: familynexus_test
+          DB_USER: familynexus
+          DB_PASSWORD: familynexus
           REDIS_URL: redis://localhost:6379/0
         run: cd backend && pytest
 

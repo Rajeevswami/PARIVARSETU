@@ -141,6 +141,28 @@ class User(AbstractBaseUser, PermissionsMixin):
         return self.is_active and not self.is_deleted and self.status == UserStatus.ACTIVE
 
 
+class EmailVerificationToken(models.Model):
+    """Single-use token emailed after public registration."""
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="email_verification_tokens"
+    )
+    token = models.CharField(max_length=128, unique=True, db_index=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField()
+    used_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        db_table = "accounts_email_verification_token"
+
+    @property
+    def is_valid(self) -> bool:
+        from django.utils import timezone
+
+        return self.used_at is None and self.expires_at > timezone.now()
+
+
 class PasswordResetToken(models.Model):
     """Short-lived, single-use token issued for the forgot-password flow."""
 

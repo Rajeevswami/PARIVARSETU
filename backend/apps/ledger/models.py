@@ -215,6 +215,9 @@ class LedgerEntry(models.Model):
     ledger_number = models.CharField(
         max_length=30, unique=True, default=generate_ledger_number, editable=False
     )
+    family = models.ForeignKey(
+        "families.Family", on_delete=models.CASCADE, related_name="ledger_entries"
+    )
     journal = models.ForeignKey(Journal, on_delete=models.PROTECT, related_name="ledger_entries")
     ledger_account = models.ForeignKey(
         LedgerAccount, on_delete=models.PROTECT, related_name="ledger_entries"
@@ -248,6 +251,9 @@ class AccountBalance(models.Model):
     """Current running totals per account — updated atomically on every posting."""
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    family = models.ForeignKey(
+        "families.Family", on_delete=models.CASCADE, related_name="account_balances"
+    )
 
     account = models.OneToOneField(LedgerAccount, on_delete=models.CASCADE, related_name="balance")
     opening_balance = models.DecimalField(max_digits=14, decimal_places=2, default=Decimal("0"))

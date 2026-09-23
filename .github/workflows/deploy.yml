@@ -1,0 +1,21 @@
+name: Deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Target environment
+        required: true
+        default: staging
+        type: choice
+        options: [staging, production]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate compose
+        run: docker compose -f docker-compose.prod.yml config --quiet
+      - name: Note
+        run: echo "Push the built images and run migrations in ${{ inputs.environment }} from the operator host. This workflow does not deploy secrets."

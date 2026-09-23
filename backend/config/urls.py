@@ -2,8 +2,36 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path
-from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
+from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
+from rest_framework.permissions import AllowAny
 from rest_framework_simplejwt.views import TokenRefreshView
+
+from apps.common.health import HealthView, MetricsView
+
+
+class _PublicDocsMixin:
+    """Docs must stay reachable. DRF's default permission is IsAuthenticated."""
+
+    authentication_classes = []
+    permission_classes = [AllowAny]
+    throttle_classes = []
+
+
+class PublicSpectacularAPIView(_PublicDocsMixin, SpectacularAPIView):
+    pass
+
+
+class PublicSpectacularSwaggerView(_PublicDocsMixin, SpectacularSwaggerView):
+    pass
+
+
+class PublicSpectacularRedocView(_PublicDocsMixin, SpectacularRedocView):
+    pass
+
+
+admin.site.site_header = f"{settings.PRODUCT_NAME} administration"
+admin.site.site_title = settings.PRODUCT_NAME
+admin.site.index_title = "Operations"
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -22,10 +50,18 @@ urlpatterns = [
     path("api/v1/notifications/", include("apps.notifications.urls")),
     path("api/v1/audit/", include("apps.audit.urls")),
     path("api/v1/administration/", include("apps.administration.urls")),
+    path("api/v1/billing/", include("apps.billing.urls")),
+    path("api/v1/privacy/", include("apps.privacy.urls")),
+    path("api/v1/referrals/", include("apps.referrals.urls")),
+    path("api/v1/onboarding/", include("apps.onboarding.urls")),
+    path("api/v1/assistant/", include("apps.assistant.urls")),
+    path("api/v1/health/", HealthView.as_view(), name="health"),
+    path("api/v1/metrics/", MetricsView.as_view(), name="metrics"),
     path("api/v1/dashboard/", include("apps.dashboard.urls")),
     path("api/v1/reports/", include("apps.reports.urls")),
-    path("api/v1/schema/", SpectacularAPIView.as_view(), name="schema"),
-    path("api/v1/docs/", SpectacularSwaggerView.as_view(url_name="schema"), name="docs"),
+    path("api/v1/schema/", PublicSpectacularAPIView.as_view(), name="schema"),
+    path("api/v1/docs/", PublicSpectacularSwaggerView.as_view(url_name="schema"), name="docs"),
+    path("api/v1/redoc/", PublicSpectacularRedocView.as_view(url_name="schema"), name="redoc"),
     # Further feature routers (expenses, loans, ledger, ...) are included
     # here as each module lands.
 ]
@@ -34,8 +70,3 @@ if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
     if "debug_toolbar" in settings.INSTALLED_APPS:
         urlpatterns += [path("__debug__/", include("debug_toolbar.urls"))]
-
-
-
-
-

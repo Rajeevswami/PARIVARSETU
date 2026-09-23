@@ -12,6 +12,8 @@ from django.db import models
 
 
 class AuditAction(models.TextChoices):
+    USER_REGISTERED = "user_registered", "User Registered"
+    EMAIL_VERIFIED = "email_verified", "Email Verified"
     LOGIN = "login", "Login"
     LOGIN_FAILED = "login_failed", "Login Failed"
     LOGOUT = "logout", "Logout"
@@ -107,8 +109,17 @@ class AuditLog(models.Model):
 
     def __str__(self) -> str:
         return f"{self.action} by {self.actor_id} at {self.created_at:%Y-%m-%d %H:%M}"
-import uuid
-from django.db import models
+
+
 class AuditFieldChange(models.Model):
- id=models.UUIDField(primary_key=True,default=uuid.uuid4,editable=False); audit_log=models.ForeignKey("audit.AuditLog",on_delete=models.CASCADE,related_name="field_changes"); field_name=models.CharField(max_length=100); old_value=models.JSONField(null=True,blank=True); new_value=models.JSONField(null=True,blank=True)
- class Meta: db_table="audit_field_change"; indexes=[models.Index(fields=["audit_log","field_name"])]
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    audit_log = models.ForeignKey(
+        "audit.AuditLog", on_delete=models.CASCADE, related_name="field_changes"
+    )
+    field_name = models.CharField(max_length=100)
+    old_value = models.JSONField(null=True, blank=True)
+    new_value = models.JSONField(null=True, blank=True)
+
+    class Meta:
+        db_table = "audit_field_change"
+        indexes = [models.Index(fields=["audit_log", "field_name"])]

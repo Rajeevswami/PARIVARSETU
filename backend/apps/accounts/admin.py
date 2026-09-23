@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as DjangoUserAdmin
 
-from .models import PasswordResetToken, User
+from .models import EmailVerificationToken, PasswordResetToken, User
 
 
 @admin.register(User)
@@ -43,6 +43,16 @@ class UserAdmin(DjangoUserAdmin):
         ),
     )
     filter_horizontal = ()
+
+
+@admin.register(EmailVerificationToken)
+class EmailVerificationTokenAdmin(admin.ModelAdmin):
+    list_display = ["user", "created_at", "expires_at", "used_at"]
+    readonly_fields = [field.name for field in EmailVerificationToken._meta.fields]
+    search_fields = ["user__email"]
+
+    def has_add_permission(self, request):
+        return False
 
 
 @admin.register(PasswordResetToken)

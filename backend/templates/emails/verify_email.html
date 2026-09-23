@@ -1,0 +1,7 @@
+{% extends "emails/base.html" %}
+{% block content %}
+  <p>Hi {{ first_name }},</p>
+  <p>Confirm your email to finish creating your {{ product_name }} account.</p>
+  <p><a href="{{ verify_link }}" class="button">Verify email</a></p>
+  <p>If you did not sign up, you can ignore this message.</p>
+{% endblock %}

@@ -55,6 +55,10 @@ export function LoginForm() {
         <Link to="/forgot-password" className="underline hover:text-foreground">
           Forgot your password?
         </Link>
+        {" · "}
+        <Link to="/signup" className="underline hover:text-foreground">
+          Create an account
+        </Link>
       </p>
     </form>
   );

@@ -1,8 +1,12 @@
 """Celery wrappers around email_service — the async entry points callers use."""
 
+import logging
+
 from celery import shared_task
 
 from .services import email_service
+
+logger = logging.getLogger("apps.errors")
 
 
 @shared_task(bind=True, max_retries=3, default_retry_delay=60)
@@ -13,6 +17,29 @@ def send_password_reset_email_task(self, user_id, reset_link: str):
         user = User.objects.get(id=user_id)
         email_service.send_password_reset_email(user=user, reset_link=reset_link)
     except Exception as exc:  # noqa: BLE001 — retry on any transient send failure
+        raise self.retry(exc=exc)
+
+
+def deliver(task, args, fallback) -> None:
+    """Queue mail, and send inline if the broker is down so signup still succeeds."""
+    try:
+        task.delay(*args)
+    except Exception:
+        logger.exception("Email broker unavailable; sending inline")
+        try:
+            fallback()
+        except Exception:
+            logger.exception("Inline email send failed")
+
+
+@shared_task(bind=True, max_retries=3, default_retry_delay=60)
+def send_verification_email_task(self, user_id, verify_link: str):
+    from .models import User
+
+    try:
+        user = User.objects.get(id=user_id)
+        email_service.send_verification_email(user=user, verify_link=verify_link)
+    except Exception as exc:  # noqa: BLE001
         raise self.retry(exc=exc)
 
 

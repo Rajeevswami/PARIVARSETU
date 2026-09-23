@@ -30,6 +30,9 @@ def send_invitation(*, admin, data: dict) -> MemberInvitation:
         raise ApplicationError(
             "Provide an email or a mobile number to invite.", code="missing_identifier"
         )
+    from apps.billing.services.entitlements import assert_can_add
+
+    assert_can_add(admin.family, "members")
 
     lookup = Q()
     if email:
@@ -98,7 +101,7 @@ def accept_invitation(*, token: str, accept_data: dict, request=None) -> Member:
                 code="account_details_required",
             )
         user = User.objects.create_user(
-            email=invitation.email or f"{invitation.mobile}@placeholder.parivarsetu.app",
+            email=invitation.email or f"{invitation.mobile}@{settings.PLACEHOLDER_EMAIL_DOMAIN}",
             password=password,
             first_name=first_name,
             mobile=invitation.mobile,

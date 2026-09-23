@@ -17,6 +17,22 @@ export function useProfile() {
   });
 }
 
+export function useRegister() {
+  const queryClient = useQueryClient();
+  const navigate = useNavigate();
+
+  return useMutation({
+    mutationFn: authApi.register,
+    onSuccess: (data) => {
+      if (!data.tokens || !data.user) return;
+      tokenStorage.setAccessToken(data.tokens.access);
+      tokenStorage.setRefreshToken(data.tokens.refresh);
+      queryClient.setQueryData(PROFILE_QUERY_KEY, data.user);
+      navigate("/onboarding");
+    },
+  });
+}
+
 export function useLogin() {
   const queryClient = useQueryClient();
   const navigate = useNavigate();

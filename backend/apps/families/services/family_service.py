@@ -41,6 +41,9 @@ def create_family(*, user, data: dict) -> Family:
         target_id=family.id,
         family_id=family.id,
     )
+    from apps.billing.services.subscription_service import attach_free
+
+    attach_free(family)
     return family
 
 

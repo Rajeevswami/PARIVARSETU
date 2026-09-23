@@ -11,7 +11,7 @@ from ..models import LedgerAccount, LedgerEntry
 
 def account_statement(*, family_id, account_id, date_from=None, date_to=None) -> dict:
     account = LedgerAccount.objects.get(id=account_id, family_id=family_id)
-    entries = LedgerEntry.objects.filter(ledger_account=account).order_by(
+    entries = LedgerEntry.objects.filter(family_id=family_id, ledger_account=account).order_by(
         "transaction_date", "created_at"
     )
     if date_from:

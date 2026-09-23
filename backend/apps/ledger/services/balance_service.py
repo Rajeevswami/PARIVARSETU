@@ -7,8 +7,12 @@ from django.db.models import Q, Sum
 from ..models import AccountBalance, LedgerAccount, NormalBalance
 
 
+def money(value) -> str:
+    return f"{Decimal(value or 0):.2f}"
+
+
 def get_account_balance(account: LedgerAccount) -> Decimal:
-    balance = AccountBalance.objects.filter(account=account).first()
+    balance = AccountBalance.objects.filter(family_id=account.family_id, account=account).first()
     return balance.current_balance if balance else Decimal("0")
 
 
@@ -71,17 +75,17 @@ def get_cash_and_bank_summary(family_id) -> dict:
     accounts = LedgerAccount.objects.filter(
         family_id=family_id, account_code__in=["1001", "1002", "1003", "1004"]
     ).select_related("balance")
-    return {a.account_name: str(get_account_balance(a)) for a in accounts}
+    return {a.account_name: money(get_account_balance(a)) for a in accounts}
 
 
 def get_income_expense_summary(family_id) -> dict:
     totals = AccountBalance.objects.filter(
-        account__family_id=family_id, account__account_code__in=["4001", "5001"]
+        family_id=family_id, account__account_code__in=["4001", "5001"]
     ).aggregate(
         income=Sum("current_balance", filter=Q(account__account_code="4001")),
         expense=Sum("current_balance", filter=Q(account__account_code="5001")),
     )
     return {
-        "income": str(totals["income"] or Decimal("0")),
-        "expense": str(totals["expense"] or Decimal("0")),
+        "income": money(totals["income"]),
+        "expense": money(totals["expense"]),
     }

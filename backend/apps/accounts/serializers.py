@@ -58,6 +58,29 @@ class AvatarUploadSerializer(serializers.Serializer):
     profile_photo = serializers.ImageField(required=True)
 
 
+class RegisterSerializer(serializers.Serializer):
+    name = serializers.CharField(max_length=301)
+    email = serializers.EmailField()
+    password = serializers.CharField(write_only=True, trim_whitespace=False)
+    confirm_password = serializers.CharField(write_only=True, trim_whitespace=False)
+
+    def validate_name(self, value: str) -> str:
+        cleaned = value.strip()
+        if not cleaned:
+            raise serializers.ValidationError("Name cannot be blank.")
+        return cleaned
+
+    def validate(self, attrs: dict) -> dict:
+        if attrs["password"] != attrs["confirm_password"]:
+            raise serializers.ValidationError({"confirm_password": "Passwords do not match."})
+        validate_password(attrs["password"])
+        return attrs
+
+
+class VerifyEmailSerializer(serializers.Serializer):
+    token = serializers.CharField()
+
+
 class LoginSerializer(serializers.Serializer):
     identifier = serializers.CharField(help_text="Email address or mobile number.")
     password = serializers.CharField(write_only=True, trim_whitespace=False)
@@ -104,3 +127,13 @@ class LoginHistorySerializer(serializers.Serializer):
     ip_address = serializers.IPAddressField(allow_null=True)
     user_agent = serializers.CharField()
     created_at = serializers.DateTimeField()
+
+
+class TokenPairSerializer(serializers.Serializer):
+    access = serializers.CharField()
+    refresh = serializers.CharField()
+
+
+class LoginResponseSerializer(serializers.Serializer):
+    user = UserProfileSerializer()
+    tokens = TokenPairSerializer()

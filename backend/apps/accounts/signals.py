@@ -11,10 +11,15 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 
 from .models import User
-from .tasks import send_welcome_email_task
+from .services import email_service
+from .tasks import deliver, send_welcome_email_task
 
 
 @receiver(post_save, sender=User)
 def send_welcome_email_on_creation(sender, instance: User, created: bool, **kwargs):
     if created and instance.email and not settings.TESTING:
-        send_welcome_email_task.delay(str(instance.id))
+        deliver(
+            send_welcome_email_task,
+            (str(instance.id),),
+            lambda: email_service.send_welcome_email(user=instance),
+        )

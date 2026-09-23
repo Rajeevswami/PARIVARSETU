@@ -1,7 +1,7 @@
 # Project Structure
 
 ```
-parivarsetu/
+familynexus/
 ├── backend/
 │   ├── apps/
 │   │   ├── common/           # response, exceptions, permissions, pagination, validators, constants, utils
@@ -19,7 +19,14 @@ parivarsetu/
 │   │   ├── reports/
 │   │   ├── notifications/
 │   │   ├── dashboard/
-│   │   └── audit/
+│   │   ├── audit/
+│   │   ├── billing/          # plans, checkout, webhooks
+│   │   ├── privacy/          # consent, export, deletion
+│   │   ├── referrals/
+│   │   ├── onboarding/
+│   │   ├── flags/
+│   │   └── assistant/        # thin views over ai_services
+│   ├── ai_services/          # Claude tool use, vectors, bots
 │   ├── config/
 │   │   ├── settings/         # base.py, development.py, production.py
 │   │   ├── urls.py, wsgi.py, asgi.py, celery.py
