@@ -7,6 +7,7 @@ from datetime import timedelta
 from pathlib import Path
 
 import dj_database_url
+from corsheaders.defaults import default_headers
 from decouple import Csv, config
 
 from config import product
@@ -216,6 +217,8 @@ SPECTACULAR_SETTINGS = {
 # ---------------------------------------------------------------------------
 CORS_ALLOWED_ORIGINS = config("CORS_ALLOWED_ORIGINS", default="http://localhost:5173", cast=Csv())
 CSRF_TRUSTED_ORIGINS = config("CSRF_TRUSTED_ORIGINS", default="http://localhost:5173", cast=Csv())
+# SPA sends X-Request-ID. corsheaders defaults omit it, so browser preflight fails.
+CORS_ALLOW_HEADERS = (*default_headers, "x-request-id")
 
 # ---------------------------------------------------------------------------
 # Redis / Celery

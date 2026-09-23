@@ -1,3 +1,4 @@
+import axios from "axios";
 import { useState } from "react";
 
 import { api } from "@/api/axios";
@@ -15,8 +16,11 @@ export function AssistantPage() {
     try {
       const response = await api.post("/assistant/copilot/", { message, language: "en" });
       setReply(response.data.data.message as string);
-    } catch {
-      setError("The assistant is unavailable on this plan.");
+    } catch (caught) {
+      const message = axios.isAxiosError(caught)
+        ? (caught.response?.data as { message?: string } | undefined)?.message
+        : undefined;
+      setError(message || "The assistant is unavailable on this plan.");
     }
   }
 

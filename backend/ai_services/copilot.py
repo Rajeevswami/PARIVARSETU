@@ -3,12 +3,14 @@
 import json
 import os
 
+from django.conf import settings
+
 from apps.billing.services.entitlements import ai_allowed
 from apps.common.exceptions import ApplicationError
 from apps.common.features import is_enabled
 from apps.families.models import Family
 
-from .claude import HttpClaudeTransport
+from .claude import ClaudeError, HttpClaudeTransport
 from .tools import TOOL_DEFINITIONS, run_tool
 
 SYSTEM = (
@@ -32,6 +34,12 @@ def answer(*, user, family_id, text: str, language: str = "en", transport=None) 
             code="assistant_unavailable",
             status_code=402,
         )
+    if transport is None and not settings.ANTHROPIC_API_KEY:
+        raise ApplicationError(
+            "The assistant is not configured. Set ANTHROPIC_API_KEY to enable live replies.",
+            code="assistant_unconfigured",
+            status_code=503,
+        )
     from apps.assistant.models import Conversation, Message
 
     conversation = Conversation.objects.create(
@@ -44,7 +52,14 @@ def answer(*, user, family_id, text: str, language: str = "en", transport=None) 
     final = ""
     tools_used = []
     for _turn in range(4):
-        result = transport.complete(system=system, messages=messages, tools=TOOL_DEFINITIONS)
+        try:
+            result = transport.complete(system=system, messages=messages, tools=TOOL_DEFINITIONS)
+        except ClaudeError as exc:
+            raise ApplicationError(
+                "The assistant is not configured. Set ANTHROPIC_API_KEY to enable live replies.",
+                code="assistant_unconfigured",
+                status_code=503,
+            ) from exc
         content = result.get("content") or []
         tool_uses = [block for block in content if block.get("type") == "tool_use"]
         text_blocks = [block.get("text", "") for block in content if block.get("type") == "text"]

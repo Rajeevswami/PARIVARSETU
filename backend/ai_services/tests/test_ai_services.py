@@ -90,6 +90,19 @@ def test_copilot_runs_a_tool_then_answers():
     assert result["message"] == "No expenses yet."
 
 
+@override_settings(ANTHROPIC_API_KEY="")
+def test_missing_anthropic_key_degrades_without_calling_the_network(monkeypatch):
+    from apps.common.exceptions import ApplicationError
+
+    monkeypatch.setenv("FEATURE_AI_COPILOT", "true")
+    family = FamilyFactory()
+    user = UserFactory(family=family)
+    with pytest.raises(ApplicationError) as caught:
+        answer(user=user, family_id=family.id, text="summarise")
+    assert caught.value.code == "assistant_unconfigured"
+    assert caught.value.status_code == 503
+
+
 def test_free_plan_cannot_use_the_copilot():
     family = FamilyFactory()
     user = UserFactory(family=family)

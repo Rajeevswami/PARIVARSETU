@@ -4,7 +4,7 @@ import { api } from "@/api/axios";
 
 export function DashboardPage() {
   const { data, isLoading } = useQuery({ queryKey: ["dashboard"], queryFn: () => api.get("/dashboard/").then(r => r.data.data) });
-  if (isLoading) return <div className="p-8">Loading dashboard…</div>;
+  if (isLoading) return <div className="p-8">Loading dashboardâ€¦</div>;
   const kpis = data?.kpis ?? {};
   return <div className="mx-auto max-w-6xl space-y-6 p-6"><div className="flex items-center justify-between"><div><h1 className="text-2xl font-semibold">Financial dashboard</h1><p className="text-sm text-muted-foreground">Live family financial summary</p></div><div className="flex gap-2"><Link className="rounded-md border px-3 py-2 text-sm" to="/analytics">Analytics</Link><Link className="rounded-md border px-3 py-2 text-sm" to="/reports">Reports</Link></div></div><div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">{Object.entries(kpis).slice(0,8).map(([name, value]) => <div key={name} className="rounded-lg border bg-card p-4"><p className="text-sm capitalize text-muted-foreground">{name.replaceAll("_", " ")}</p><p className="mt-2 text-xl font-semibold">{String(value)}</p></div>)}</div><div className="grid gap-6 md:grid-cols-2"><Recent title="Recent expenses" rows={data?.recent?.expenses} /><Recent title="Recent loans" rows={data?.recent?.loans} /></div></div>;
 }

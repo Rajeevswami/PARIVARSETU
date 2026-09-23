@@ -12,6 +12,17 @@ from apps.families.tests.factories import FamilyFactory
 pytestmark = pytest.mark.django_db
 
 
+def test_browser_preflight_allows_the_request_id_header():
+    response = APIClient().options(
+        reverse("health"),
+        HTTP_ORIGIN="http://localhost:5173",
+        HTTP_ACCESS_CONTROL_REQUEST_METHOD="GET",
+        HTTP_ACCESS_CONTROL_REQUEST_HEADERS="authorization,content-type,x-request-id",
+    )
+    assert response.status_code == 200
+    assert "x-request-id" in response["Access-Control-Allow-Headers"]
+
+
 def test_health_is_public():
     response = APIClient().get(reverse("health"))
     assert response.status_code == 200
